@@ -21,8 +21,6 @@ netsh advfirewall set allprofiles state off
 powercfg -change -standby-timeout-ac 0
 powercfg -change -monitor-timeout-ac 0
 net user administrator /active:yes
-net user administrator Akcds@Lab19
-net user lab abc@123 /add
 net localgroup Users lab /add
 net localgroup Administrators lab /delete
 net accounts /maxpwage:unlimited
