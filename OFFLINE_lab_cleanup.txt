@@ -1,0 +1,128 @@
+﻿NET STOP wuauserv
+Start-Sleep -Seconds 2
+Set-Location “C:\Windows\SoftwareDistribution”
+Remove-Item “*” -recurse -force
+Start-Sleep -Seconds 5
+NET START wuauserv
+Start-Sleep -Seconds 2
+C:\Windows\System32\control.exe /name Microsoft.WindowsUpdate
+Set-Location C:\Program*Files\McAfee\Agent\
+.\cmdagent.exe /s
+.\cmdagent.exe /e
+.\cmdagent.exe /c
+set-location "C:\Program*Files*(x86)\McAfee\Common*Framework"
+.\cmdagent.exe /s
+.\cmdagent.exe /e
+.\cmdagent.exe /c
+Set-Location C:\Program*Files\McAfee\Endpoint*Security\Threat*Prevention\
+.\amcfg.exe /update
+powercfg -restoredefaultschemes
+netsh advfirewall set allprofiles state off
+powercfg -change -standby-timeout-ac 0
+powercfg -change -monitor-timeout-ac 0
+net user administrator /active:yes
+net user administrator Akcds@Lab19
+net user lab abc@123 /add
+net localgroup Users lab /add
+net localgroup Administrators lab /delete
+net accounts /maxpwage:unlimited
+Set-Location “C:\WINDOWS\system32\”
+Set-Location “C:\Users”
+Remove-Item “.\*\Downloads\*” -recurse -force
+Remove-Item “.\*\Appdata\Local\Temp\*” -recurse -force
+Remove-Item “.\*\Desktop\*” -recurse -force -Exclude *.lnk
+Set-Location “C:\Windows\Temp\”
+Remove-Item * -recurse -force
+Set-Location “C:\Windows\Prefetch\”
+Remove-Item * -recurse -force
+Set-Location “C:\WINDOWS\system32\”
+taskkill /F /IM "chrome.exe"
+Start-Sleep -Seconds 5
+Set-Location “C:\Users”
+Remove-Item “.\*\AppData\Local\Google\Chrome\*” -recurse -force
+Set-Location “C:\WINDOWS\system32\”
+taskkill /F /IM "msedge.exe"
+taskkill /F /IM "MicrosoftEdge.exe"
+Start-Sleep -Seconds 5
+Set-Location “C:\Users”
+Remove-Item “.\*\AppData\Local\Microsoft\Edge\*” -recurse -force
+Remove-Item “.\*\AppData\Local\MicrosoftEdge\*” -recurse -force
+Remove-Item “.\*\AppData\Local\Microsoft\Edge Dev\*” -recurse -force
+Remove-Item “.\*\AppData\Local\Microsoft\Edge SXS\*” -recurse -force
+Remove-Item “.\*\AppData\Local\Microsoft\Edge Beta\*” -recurse -force
+Remove-Item “.\*\AppData\Roaming\Microsoft\Internet Explorer*” -recurse -force
+Remove-Item “.\*\AppData\Local\Packages\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\AppData\User\*” -recurse -force
+Remove-Item “.\*\AppData\Local\Microsoft\Internet Explorer\*” -recurse -force
+Set-Location “C:\WINDOWS\system32\”
+taskkill /F /IM "firefox.exe"
+Set-Location “C:\Users”
+Remove-Item “.\*\AppData\Roaming\Mozilla*” -recurse -force
+Remove-Item “.\*\AppData\Local\Mozilla\Firefox\*” -recurse -force
+Remove-Item “.\*\AppData\Roaming\Mozilla*” -recurse -force
+Clear-RecycleBin -Force
+set-location "C:\Program*Files*(x86)\McAfee\Endpoint*Security\Endpoint*Security*Platform\"
+.\MFEConsole.exe
+Start-Sleep -Seconds 5
+# Create a Shortcut with Windows PowerShell
+$SourceFileLocation = "C:\Windows\explorer.exe"
+$ShortcutLocation = "C:\Users\public\Desktop\ThisPC.lnk"
+#New-Object : Creates an instance of a Microsoft .NET Framework or COM object.
+#-ComObject WScript.Shell: This creates an instance of the COM object that represents the WScript.Shell for invoke CreateShortCut
+$WScriptShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WScriptShell.CreateShortcut($ShortcutLocation)
+$Shortcut.TargetPath = $SourceFileLocation
+#Save the Shortcut to the TargetPath
+$Shortcut.Save()
+REG ADD "HKCU\SOFTWARE\Microsoft\Windows\Shell\Bags\1\Desktop" /V FFLAGS /T REG_DWORD /D 1075839525 /F
+taskkill /f /im explorer.exe
+start explorer.exe
+ii "C:\Program Files\Common*Files\McAfee\Engine\content\amcore\update\"
+Set-Location C:\Program*Files\McAfee\Endpoint*Security\Threat*Prevention\
+.\amcfg.exe /scan /task quick /action start
+Set-Location “C:\WINDOWS\system32\”
+$path = $env:HOMEDRIVE+”\windows.old”
+If(Test-Path -Path $path)
+{
+#create registry value
+$regpath = “HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Previous Installations”
+New-ItemProperty -Path $regpath -Name “StateFlags1221” -PropertyType DWORD -Value 2 -Force | Out-Null
+#start clean application
+cleanmgr /SAGERUN:1221
+}
+Else
+{
+Write-Warning “There is no ‘Windows.old’ folder in system driver”
+cmd /c pause
+}
+$exts=@("txt","log","csproj","sql","xml","flobble")
+echo "## setting up file associations"
+foreach ($ext in $exts){
+    $extfile=$ext+"file"
+    $dotext="." + $ext
+    cmd /c assoc $dotext=$extfile
+    cmd /c "ftype $extfile=""C:\Windows\notepad.exe"" %1"
+    echo ""
+}
+$exts=@("zip","rar","wim","7z")
+echo "## setting up file associations"
+foreach ($ext in $exts){
+    $extfile=$ext+"file"
+    $dotext="." + $ext
+    cmd /c assoc $dotext=$extfile
+    cmd /c "ftype $extfile=""C:\Program Files\7-Zip\7zFM.exe"" %1"
+    echo ""
+}
+$exts=@("pdf")
+echo "## setting up file associations"
+foreach ($ext in $exts){
+    $extfile=$ext+"file"
+    $dotext="." + $ext
+    cmd /c assoc $dotext=$extfile
+    cmd /c "ftype $extfile=""C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"" %1"
+    echo ""
+}
+
+exit
+
+shutdown /s /t 1800
+ 
